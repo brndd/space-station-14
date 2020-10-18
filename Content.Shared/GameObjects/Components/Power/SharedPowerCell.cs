@@ -8,4 +8,12 @@ namespace Content.Shared.GameObjects.Components.Power
     {
         ChargeLevel
     }
+
+    [Serializable, NetSerializable]
+    public enum PowerCellSize
+    {
+        Small,
+        Medium,
+        Large
+    }
 }

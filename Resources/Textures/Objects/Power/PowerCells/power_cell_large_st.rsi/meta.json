@@ -8,7 +8,7 @@
     "copyright": "Taken from https://github.com/discordia-space/CEV-Eris/",
     "states": [
         {
-            "name": "b_st",
+            "name": "l_st",
             "directions": 1,
             "delays": [
                 [
@@ -17,7 +17,7 @@
             ]
         },
         {
-            "name": "b_st_0",
+            "name": "l_st_0",
             "directions": 1,
             "delays": [
                 [
@@ -27,7 +27,7 @@
             ]
         },
         {
-            "name": "b_st_100",
+            "name": "l_st_100",
             "directions": 1,
             "delays": [
                 [
@@ -36,7 +36,7 @@
             ]
         },
         {
-            "name": "b_st_25",
+            "name": "l_st_25",
             "directions": 1,
             "delays": [
                 [
@@ -45,7 +45,7 @@
             ]
         },
         {
-            "name": "b_st_50",
+            "name": "l_st_50",
             "directions": 1,
             "delays": [
                 [
@@ -54,7 +54,7 @@
             ]
         },
         {
-            "name": "b_st_75",
+            "name": "l_st_75",
             "directions": 1,
             "delays": [
                 [
