@@ -11,9 +11,15 @@ namespace Content.Server.GameObjects.Components.Power
     {
         public override string Name => "Battery";
 
+        /// <summary>
+        /// This is the maximum charge of the cell in milliwatt hours.
+        /// </summary>
         [ViewVariables(VVAccess.ReadWrite)] public int MaxCharge { get => _maxCharge; set => SetMaxCharge(value); }
         private int _maxCharge;
 
+        /// <summary>
+        /// This is the current charge of the cell in milliwatt hours.
+        /// </summary>
         [ViewVariables(VVAccess.ReadWrite)]
         public float CurrentCharge { get => _currentCharge; set => SetCurrentCharge(value); }
 
