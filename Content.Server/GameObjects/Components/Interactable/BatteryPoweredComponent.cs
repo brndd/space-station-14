@@ -18,10 +18,10 @@ using Robust.Shared.ViewVariables;
 namespace Content.Server.GameObjects.Components.Interactable
 {
     /// <summary>
-    ///     Component that represents a device that has a replaceable power cell and uses it for power.
+    ///     Component that represents a device that has a replaceable battery and uses it for power.
     /// </summary>
     [RegisterComponent]
-    internal sealed class CellPoweredComponent : SharedCellPoweredComponent, IMapInit
+    internal sealed class BatteryPoweredComponent : SharedBatteryPoweredComponent, IMapInit
     {
         /// <summary>
         ///     This is how many watts of power the device consumes.
@@ -32,36 +32,36 @@ namespace Content.Server.GameObjects.Components.Interactable
         ///     This is how many watts of power the device consumes when powered off.
         /// </summary>
         [ViewVariables(VVAccess.ReadWrite)] public float WattageStandby { get; set; } = 0;
-        [ViewVariables] private ContainerSlot _cellContainer = default!;
+        [ViewVariables] private ContainerSlot _batteryContainer = default!;
 
-        private PowerCellComponent? Cell
+        private BatteryComponent? Battery
         {
             get
             {
-                if (_cellContainer.ContainedEntity == null) return null;
-                return _cellContainer.ContainedEntity.TryGetComponent(out PowerCellComponent? cell) ? cell : null;
+                if (_batteryContainer.ContainedEntity == null) return null;
+                return _batteryContainer.ContainedEntity.TryGetComponent(out BatteryComponent? battery) ? battery : null;
             }
         }
 
         /// <summary>
-        ///     Whether the power cell is actively discharging or not.
+        ///     Whether the battery is actively discharging or not.
         /// </summary>
         [ViewVariables] public bool Discharging { get; private set; }
 
-        [ViewVariables] protected override bool HasCell => Cell != null;
-        [ViewVariables] public override PowerCellSize PowerCellSlotSize { get; } = PowerCellSize.Small;
+        [ViewVariables] protected override bool HasBattery => Battery != null;
+        [ViewVariables] public override BatterySize BatterySlotSize { get; } = BatterySize.Small;
 
         /// <summary>
-        /// Whether the cell in this component can be removed.
+        /// Whether the battery in this component can be removed.
         /// </summary>
-        [ViewVariables] public bool CanRemoveCell { get; set; }
+        [ViewVariables] public bool CanRemoveBattery { get; set; }
 
         public override void Initialize()
         {
             base.Initialize();
 
-            _cellContainer =
-                ContainerManagerComponent.Ensure<ContainerSlot>("cellpowered_cell_container", Owner, out _);
+            _batteryContainer =
+                ContainerManagerComponent.Ensure<ContainerSlot>("batterypowered_battery_container", Owner, out _);
 
             Dirty();
         }
@@ -79,7 +79,7 @@ namespace Content.Server.GameObjects.Components.Interactable
         }
 
         /// <summary>
-        /// Causes the power cell to stop actively discharging, ie. turns the device off.
+        /// Causes the battery to stop actively discharging, ie. turns the device off.
         /// </summary>
         /// <returns>true, if discharging was stopped; false otherwise.</returns>
         public bool StopDischarging()
@@ -92,7 +92,7 @@ namespace Content.Server.GameObjects.Components.Interactable
         }
 
         /// <summary>
-        /// Causes the power cell to begin actively discharging, ie. turns the device on.
+        /// Causes the battery to begin actively discharging, ie. turns the device on.
         /// </summary>
         /// <returns>true, if discharging was started; false otherwise.</returns>
         public bool StartDischarging()
@@ -102,14 +102,14 @@ namespace Content.Server.GameObjects.Components.Interactable
                 return true;
             }
 
-            if (Cell == null)
+            if (Battery == null)
             {
                 return false;
             }
 
             // To prevent having to worry about frame time in here.
             // Let's just say you need a whole second of charge before you can turn it on.
-            if (Wattage > Cell.CurrentCharge * 1000)
+            if (Wattage > Battery.CurrentCharge * 1000)
             {
                 return false;
             }
@@ -120,35 +120,35 @@ namespace Content.Server.GameObjects.Components.Interactable
 
         public void OnUpdate(float frameTime)
         {
-            if (Cell == null) return;
+            if (Battery == null) return;
             var consumedWattage = Discharging ? Wattage : WattageStandby;
-            if (!Cell.TryUseCharge(consumedWattage * frameTime)) StopDischarging();
+            if (!Battery.TryUseCharge(consumedWattage * frameTime)) StopDischarging();
             Dirty();
         }
 
         public override ComponentState GetComponentState()
         {
-            if (Cell == null)
+            if (Battery == null)
             {
-                return new CellPoweredComponentState(null, null, false, PowerCellSlotSize);
+                return new BatteryPoweredComponentState(null, null, false, BatterySlotSize);
             }
 
-            return new CellPoweredComponentState(Cell.CurrentCharge, Cell.MaxCharge, HasCell, PowerCellSlotSize);
+            return new BatteryPoweredComponentState(Battery.CurrentCharge, Battery.MaxCharge, HasBattery, BatterySlotSize);
         }
 
-        private void EjectCell([CanBeNull] IEntity user, bool force = false)
+        private void EjectBattery([CanBeNull] IEntity user, bool force = false)
         {
-            if (Cell == null || !CanRemoveCell)
+            if (Battery == null || !CanRemoveBattery)
             {
                 return;
             }
 
-            if (!force && !CanRemoveCell)
+            if (!force && !CanRemoveBattery)
             {
                 return;
             }
 
-            if (!_cellContainer.Remove(Cell.Owner))
+            if (!_batteryContainer.Remove(Battery.Owner))
             {
                 return;
             }
@@ -158,21 +158,21 @@ namespace Content.Server.GameObjects.Components.Interactable
             {
                 if (user.TryGetComponent(out HandsComponent? hands))
                 {
-                    if (hands.PutInHand(Cell.Owner.GetComponent<ItemComponent>()))
+                    if (hands.PutInHand(Battery.Owner.GetComponent<ItemComponent>()))
                     {
                         return;
                     }
-                    Cell.Owner.Transform.Coordinates = user.Transform.Coordinates;
+                    Battery.Owner.Transform.Coordinates = user.Transform.Coordinates;
                     return;
                 }
             }
-            Cell.Owner.Transform.Coordinates = Owner.Transform.Coordinates;
+            Battery.Owner.Transform.Coordinates = Owner.Transform.Coordinates;
         }
 
         [Verb]
-        public sealed class EjectCellVerb : Verb<CellPoweredComponent>
+        public sealed class EjectBatteryVerb : Verb<BatteryPoweredComponent>
         {
-            protected override void GetData(IEntity user, CellPoweredComponent component, VerbData data)
+            protected override void GetData(IEntity user, BatteryPoweredComponent component, VerbData data)
             {
                 if (!ActionBlockerSystem.CanInteract(user))
                 {
@@ -180,39 +180,39 @@ namespace Content.Server.GameObjects.Components.Interactable
                     return;
                 }
 
-                if (component.Cell == null)
+                if (component.Battery == null)
                 {
-                    data.Text = Loc.GetString("Eject cell (cell missing)");
+                    data.Text = Loc.GetString("Eject battery (battery missing)");
                     data.Visibility = VerbVisibility.Disabled;
                 }
                 else
                 {
-                    data.Text = Loc.GetString(("Eject cell"));
+                    data.Text = Loc.GetString(("Eject battery"));
                 }
             }
 
-            protected override void Activate(IEntity user, CellPoweredComponent component)
+            protected override void Activate(IEntity user, BatteryPoweredComponent component)
             {
-                component.EjectCell(user);
+                component.EjectBattery(user);
             }
         }
 
         void IMapInit.MapInit()
         {
-            if (_cellContainer.ContainedEntity != null)
+            if (_batteryContainer.ContainedEntity != null)
             {
                 return;
             }
 
-            string protoName = PowerCellSlotSize switch
+            string protoName = BatterySlotSize switch
             {
-                PowerCellSize.Small => "PowerCellSmallStandard",
-                PowerCellSize.Medium => "PowerCellMediumStandard",
-                PowerCellSize.Large => "PowerCellLargeStandard",
+                BatterySize.Small => "PowerCellSmallStandard",
+                BatterySize.Medium => "PowerCellMediumStandard",
+                BatterySize.Large => "PowerCellLargeStandard",
                 _ => throw new ArgumentOutOfRangeException()
             };
-            var cell = Owner.EntityManager.SpawnEntity(protoName, Owner.Transform.Coordinates);
-            _cellContainer.Insert(cell);
+            var battery = Owner.EntityManager.SpawnEntity(protoName, Owner.Transform.Coordinates);
+            _batteryContainer.Insert(battery);
         }
     }
 }

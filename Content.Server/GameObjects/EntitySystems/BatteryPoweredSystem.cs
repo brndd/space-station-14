@@ -5,11 +5,11 @@ using Robust.Shared.GameObjects.Systems;
 namespace Content.Server.GameObjects.EntitySystems
 {
     [UsedImplicitly]
-    internal sealed class CellPoweredSystem : EntitySystem
+    internal sealed class BatteryPoweredSystem : EntitySystem
     {
         public override void Update(float frameTime)
         {
-            foreach (var comp in ComponentManager.EntityQuery<CellPoweredComponent>())
+            foreach (var comp in ComponentManager.EntityQuery<BatteryPoweredComponent>())
             {
                 comp.OnUpdate(frameTime);
             }

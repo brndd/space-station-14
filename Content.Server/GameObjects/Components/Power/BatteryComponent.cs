@@ -1,4 +1,5 @@
 ﻿using System;
+using Content.Shared.GameObjects.Components.Power;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Maths;
 using Robust.Shared.Serialization;
@@ -6,6 +7,10 @@ using Robust.Shared.ViewVariables;
 
 namespace Content.Server.GameObjects.Components.Power
 {
+    /// <summary>
+    /// Batteries that hold a certain amount of charge in milliwatt hours
+    /// and fit into battery slots of a given size in tools.
+    /// </summary>
     [RegisterComponent]
     public class BatteryComponent : Component
     {
@@ -27,11 +32,15 @@ namespace Content.Server.GameObjects.Components.Power
 
         [ViewVariables] public BatteryState BatteryState { get; private set; }
 
+        [ViewVariables] public BatterySize BatterySize { get => _batterySize; }
+        private BatterySize _batterySize = BatterySize.Small;
+
         public override void ExposeData(ObjectSerializer serializer)
         {
             base.ExposeData(serializer);
             serializer.DataField(ref _maxCharge, "maxCharge", 1000);
             serializer.DataField(ref _currentCharge, "startingCharge", 500);
+            serializer.DataField(ref _batterySize, "batterySize", BatterySize.Small);
         }
 
         public override void Initialize()
