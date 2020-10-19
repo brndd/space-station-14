@@ -121,8 +121,14 @@ namespace Content.Server.GameObjects.Components.Interactable
         public void OnUpdate(float frameTime)
         {
             if (Battery == null) return;
+
             var consumedWattage = Discharging ? Wattage : WattageStandby;
-            if (!Battery.TryUseCharge(consumedWattage * frameTime)) StopDischarging();
+
+            if (consumedWattage == 0)
+            {
+                return;
+            }
+            if (!Battery.TryDrawPower(consumedWattage, frameTime)) StopDischarging();
             Dirty();
         }
 

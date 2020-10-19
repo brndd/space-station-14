@@ -72,6 +72,98 @@ namespace Content.Server.GameObjects.Components.Power
             return chargeChangedBy;
         }
 
+        public bool TryAddCharge(float chargeToAdd)
+        {
+            if (CurrentCharge + chargeToAdd > MaxCharge)
+            {
+                return false;
+            }
+            CurrentCharge += chargeToAdd;
+            return true;
+        }
+
+        public float AddCharge(float toAdd)
+        {
+            var newCharge = Math.Min(CurrentCharge + toAdd, MaxCharge);
+            var chargeDelta = CurrentCharge - newCharge;
+            CurrentCharge = newCharge;
+            return chargeDelta;
+        }
+
+        private float _wattsOverTimeToMilliWattHours(float watts, float time)
+        {
+            return watts * 1000 * time / 3600; // TODO: constantitize these numbers
+        }
+
+        /// <summary>
+        /// Tries to draw <paramref name="watts"/> amount of power from the battery for <paramref name="time"/> seconds.
+        /// If there is sufficient charge, it's drawn. Otherwise nothing happens.
+        /// </summary>
+        /// <param name="watts">Amount of power to draw.</param>
+        /// <param name="time">Number of seconds to draw power for.</param>
+        /// <returns>true if the battery had enough charge for the operation; false otherwise</returns>
+        public bool TryDrawPower(float watts, float time)
+        {
+            var drawnCharge = _wattsOverTimeToMilliWattHours(watts, time);
+            return TryUseCharge(drawnCharge);
+        }
+
+        /// <summary>
+        /// Uses <paramref name="watts"/> amount of power from the battery for <paramref name="time"/> seconds.
+        /// </summary>
+        /// <param name="watts">Amount of power to draw.</param>
+        /// <param name="time">Number of seconds to draw power for.</param>
+        /// <returns>Amount of charge drawn from the battery. May be less than the actual amount of watt hours drawn
+        /// if the battery ran out of power because of this draw.</returns>
+        public float DrawPower(float watts, float time)
+        {
+            if (CurrentCharge == 0)
+            {
+                return 0;
+            }
+            var drawnCharge = _wattsOverTimeToMilliWattHours(watts, time);
+            var newCharge = Math.Min(0, CurrentCharge - drawnCharge);
+            var chargeDelta = CurrentCharge - newCharge;
+            CurrentCharge = newCharge;
+            return chargeDelta;
+        }
+
+        /// <summary>
+        /// Tries to add <paramref name="watts"/> amount of power to the battery for <paramref name="time"/> seconds,
+        /// effectively recharging it with a <paramref name="watts"/> Watt charger.
+        /// If the battery has sufficient empty capacity, the capacity is incremented. Otherwise nothing happens.
+        /// </summary>
+        /// <param name="watts">Amount of power to supply.</param>
+        /// <param name="time">Number of seconds to supply power for.</param>
+        /// <returns>true if the battery had low enough charge for the operation; false otherwise</returns>
+        public bool TryAddPower(float watts, float time)
+        {
+            var addedCharge = _wattsOverTimeToMilliWattHours(watts, time);
+            return TryAddCharge(addedCharge);
+        }
+
+        /// <summary>
+        /// Adds <paramref name="watts"/> amount of power from the battery for <paramref name="time"/> seconds,
+        /// effectively recharging it with a <paramref name="watts"/> Watt charger.
+        /// </summary>
+        /// <param name="watts">Amount of power to supply.</param>
+        /// <param name="time">Number of seconds to supply power for.</param>
+        /// <returns>Amount of charge added to the battery. May be less than the actual amount of watt hours supplied
+        /// if the battery reached its capacity because of this supply.</returns>
+        public float AddPower(float watts, float time)
+        {
+            if (CurrentCharge == MaxCharge)
+            {
+                return 0;
+            }
+
+            var suppliedCharge = _wattsOverTimeToMilliWattHours(watts, time);
+            var newCharge = Math.Min(MaxCharge, CurrentCharge + suppliedCharge);
+            var chargeDelta = newCharge - CurrentCharge;
+            CurrentCharge = newCharge;
+            return chargeDelta;
+        }
+
         public void FillFrom(BatteryComponent battery)
         {
             var powerDeficit = MaxCharge - CurrentCharge;
