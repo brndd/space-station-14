@@ -1,5 +1,7 @@
-﻿- type: entity
-  id: PowerCellSmallBase
+﻿# Batteries
+
+- type: entity
+  id: BatteryBase
   abstract: true
   parent: BaseItem
   components:
@@ -7,13 +9,94 @@
     anchored: false
     shapes:
     - !type:PhysShapeAabb
-      bounds: "-0.15,-0.3,0.2,0.3"
+      bounds: "-0.15,-0.3,0.2,0.3" # TODO: these are placeholder values
+      layer:
+      - Clickable
+  - type: Battery
+  - type: Sprite
+    netsync: false
+
+- type: entity
+  id: BatterySmallBase
+  abstract: true
+  parent: BatteryBase
+  components:
+  - type: Battery
+    batterySize: Small
+
+- type: entity
+  id: BatteryMediumBase
+  abstract: true
+  parent: BatteryBase
+  components:
+  - type: Battery
+    batterySize: Medium
+
+- type: entity
+  id: BatteryLargeBase
+  abstract: true
+  parent: BatteryBase
+  components:
+  - type: Battery
+    batterySize: Large
+
+- type: entity
+  name: potato battery
+  description: Someone's stuck two nails and some wire in a large potato. Somehow it provides a little charge.
+  id: BatteryMediumPotato
+  components:
+  - type: Sprite
+    sprite: Objects/Power/Battery/potato_battery.rsi
+    layers:
+    - state: potato_battery
+  - type: Battery
+    maxCharge: 100
+    startingCharge: 100
+
+
+# Power cells -- just batteries with a graphical charge indicator on the sprite
+
+- type: entity
+  id: PowerCellBase
+  abstract: true
+  parent: BaseItem
+  components:
+  - type: Physics
+    anchored: false
+    shapes:
+    - !type:PhysShapeAabb
+      bounds: "-0.15,-0.3,0.2,0.3" # TODO: these are placeholder values
       layer:
       - Clickable
   - type: PowerCell
+    batterySize: Small
   - type: Appearance
   - type: Sprite
     netsync: false
+
+- type: entity
+  id: PowerCellSmallBase
+  abstract: true
+  parent: PowerCellBase
+  components:
+  - type: PowerCell
+    batterySize: Small
+
+- type: entity
+  id: PowerCellMediumBase
+  abstract: true
+  parent: PowerCellBase
+  components:
+  - type: PowerCell
+    batterySize: Medium
+
+- type: entity
+  id: PowerCellLargeBase
+  abstract: true
+  parent: PowerCellBase
+  components:
+  - type: PowerCell
+    batterySize: Large
 
 - type: entity
   name: small standard power cell
@@ -22,13 +105,12 @@
   parent: PowerCellSmallBase
   components:
   - type: Sprite
-    sprite: Objects/Power/PowerCells/power_cell_small_st.rsi
+    sprite: Objects/Power/Battery/power_cell_small_st.rsi
     layers:
     - state: s_st
   - type: PowerCell
     maxCharge: 100
     startingCharge: 100
-    powerCellSize: Small
   - type: Appearance
     visuals:
     - type: PowerCellVisualizer
@@ -42,13 +124,12 @@
   parent: PowerCellSmallBase
   components:
   - type: Sprite
-    sprite: Objects/Power/PowerCells/power_cell_small_hi.rsi
+    sprite: Objects/Power/Battery/power_cell_small_hi.rsi
     layers:
     - state: s_hi
   - type: PowerCell
     maxCharge: 200
     startingCharge: 200
-    powerCellSize: Small
   - type: Appearance
     visuals:
     - type: PowerCellVisualizer
@@ -62,13 +143,12 @@
   parent: PowerCellSmallBase
   components:
   - type: Sprite
-    sprite: Objects/Power/PowerCells/power_cell_small_sup.rsi
+    sprite: Objects/Power/Battery/power_cell_small_sup.rsi
     layers:
     - state: s_sup
   - type: PowerCell
     maxCharge: 300
     startingCharge: 300
-    powerCellSize: Small
   - type: Appearance
     visuals:
     - type: PowerCellVisualizer
@@ -82,34 +162,16 @@
   parent: PowerCellSmallBase
   components:
   - type: Sprite
-    sprite: Objects/Power/PowerCells/power_cell_small_hy.rsi
+    sprite: Objects/Power/Battery/power_cell_small_hy.rsi
     layers:
     - state: s_hy
   - type: PowerCell
     maxCharge: 500
     startingCharge: 500
-    powerCellSize: Small
   - type: Appearance
     visuals:
     - type: PowerCellVisualizer
       prefix: s_hy
-
-- type: entity
-  id: PowerCellMediumBase
-  abstract: true
-  parent: BaseItem
-  components:
-    - type: Physics
-      anchored: false
-      shapes:
-        - !type:PhysShapeAabb
-          bounds: "-0.15,-0.3,0.2,0.3"
-          layer:
-            - Clickable
-    - type: PowerCell
-    - type: Appearance
-    - type: Sprite
-      netsync: false
 
 - type: entity
   name: medium standard power cell
@@ -118,13 +180,12 @@
   parent: PowerCellMediumBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_medium_st.rsi
+      sprite: Objects/Power/Battery/power_cell_medium_st.rsi
       layers:
         - state: m_st
     - type: PowerCell
       maxCharge: 600
       startingCharge: 600
-      powerCellSize: Medium
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
@@ -137,7 +198,7 @@
   parent: PowerCellMediumBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_medium_hi.rsi
+      sprite: Objects/Power/Battery/power_cell_medium_hi.rsi
       layers:
         - state: m_hi
     - type: PowerCell
@@ -156,13 +217,12 @@
   parent: PowerCellMediumBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_medium_sup.rsi
+      sprite: Objects/Power/Battery/power_cell_medium_sup.rsi
       layers:
         - state: m_sup
     - type: PowerCell
       maxCharge: 1000
       startingCharge: 1000
-      powerCellSize: Medium
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
@@ -175,34 +235,16 @@
   parent: PowerCellMediumBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_medium_hy.rsi
+      sprite: Objects/Power/Battery/power_cell_medium_hy.rsi
       layers:
         - state: m_hy
     - type: PowerCell
       maxCharge: 1500
       startingCharge: 1500
-      powerCellSize: Medium
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
           prefix: m_hy
-
-- type: entity
-  id: PowerCellLargeBase
-  abstract: true
-  parent: BaseItem
-  components:
-    - type: Physics
-      anchored: false
-      shapes:
-        - !type:PhysShapeAabb
-          bounds: "-0.15,-0.3,0.2,0.3"
-          layer:
-            - Clickable
-    - type: PowerCell
-    - type: Appearance
-    - type: Sprite
-      netsync: false
 
 - type: entity
   name: large standard power cell
@@ -211,13 +253,12 @@
   parent: PowerCellLargeBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_large_st.rsi
+      sprite: Objects/Power/Battery/power_cell_large_st.rsi
       layers:
         - state: l_st
     - type: PowerCell
       maxCharge: 2500
       startingCharge: 2500
-      powerCellSize: Large
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
@@ -230,13 +271,12 @@
   parent: PowerCellLargeBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_large_hi.rsi
+      sprite: Objects/Power/Battery/power_cell_large_hi.rsi
       layers:
         - state: l_hi
     - type: PowerCell
       maxCharge: 5000
       startingCharge: 5000
-      powerCellSize: Large
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
@@ -249,13 +289,12 @@
   parent: PowerCellLargeBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_large_sup.rsi
+      sprite: Objects/Power/Battery/power_cell_large_sup.rsi
       layers:
         - state: l_sup
     - type: PowerCell
       maxCharge: 15000
       startingCharge: 15000
-      powerCellSize: Large
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
@@ -268,13 +307,12 @@
   parent: PowerCellLargeBase
   components:
     - type: Sprite
-      sprite: Objects/Power/PowerCells/power_cell_large_hy.rsi
+      sprite: Objects/Power/Battery/power_cell_large_hy.rsi
       layers:
         - state: l_hy
     - type: PowerCell
       maxCharge: 20000
       startingCharge: 20000
-      powerCellSize: Large
     - type: Appearance
       visuals:
         - type: PowerCellVisualizer
